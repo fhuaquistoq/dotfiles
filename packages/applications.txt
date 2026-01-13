@@ -1,0 +1,30 @@
+# ==============================================
+# USER APPLICATIONS
+# ==============================================
+# Web browsers, media players, and other
+# desktop applications for daily use
+# ==============================================
+
+# === Media Players ===
+vlc
+mpv
+
+# === Remote Desktop ===
+remmina
+# freerdp
+
+# === Archive Managers ===
+# file-roller
+# p7zip
+# unrar
+
+# === Image Viewers ===
+# imv
+# feh
+
+# === PDF Viewers ===
+zathura
+zathura-pdf-mupdf
+
+# === System Tools ===
+# gparted

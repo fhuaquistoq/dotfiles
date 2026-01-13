@@ -1,0 +1,76 @@
+# ==============================================
+# Git Ignore - Dotfiles
+# ==============================================
+
+# Archivos de secretos y tokens
+fish/secrets.fish
+fish/config.fish.backup
+**/*_token*
+**/*_secret*
+.env
+.env.local
+
+# Variables de Fish personales
+fish/fish_variables
+
+# Historial y caché
+fish/fish_history
+**/.cache/
+**/.local/share/fish/
+
+# Backups
+*.backup
+*.bak
+*~
+.config-backup-*/
+
+# Logs
+*.log
+**/*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Compilados
+*.o
+*.so
+*.dylib
+*.pyc
+__pycache__/
+
+# Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python
+venv/
+.venv/
+*.egg-info/
+
+# Mise
+.mise.local.toml
+
+# Screenshots personales (opcional)
+# media/images/screenshots/*.png
+
+# Configuración local de SDDM (puede contener rutas específicas)
+sddm/sddm-pixel/setup.log
+
+# Archivos de test
+test/
+*.test.sh

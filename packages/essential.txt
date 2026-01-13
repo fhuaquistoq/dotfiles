@@ -1,0 +1,57 @@
+# ==============================================
+# ESSENTIAL PACKAGES - SYSTEM CORE
+# ==============================================
+# These packages are required for the system
+# to function properly. Do not remove unless
+# you know what you're doing.
+# ==============================================
+
+# === Base System ===
+base
+base-devel
+linux
+linux-firmware
+networkmanager
+
+# === Bootloader & Init ===
+grub
+efibootmgr
+
+# === Graphics Drivers (Intel) ===
+mesa
+lib32-mesa
+vulkan-intel
+lib32-vulkan-intel
+intel-media-driver
+
+# === Audio System ===
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+sof-firmware
+
+# === Display Manager ===
+sddm
+qt6-svg
+qt6-virtualkeyboard
+qt6-multimedia-ffmpeg
+
+# === Wayland Compositors ===
+hyprland
+sway
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-wlr
+
+# === Session Management ===
+uwsm
+polkit
+
+# === Essential Utilities ===
+git
+zip
+unzip
+man-db
+which
+sudo

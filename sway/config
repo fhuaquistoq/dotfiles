@@ -1,0 +1,14 @@
+# =========================
+# Imports
+# =========================
+
+include ~/.config/sway/themes/catppuccin-mocha.conf
+
+include ~/.config/sway/sway.config.d/theme.conf
+include ~/.config/sway/sway.config.d/variables.conf
+include ~/.config/sway/sway.config.d/keybinding.conf
+include ~/.config/sway/sway.config.d/rules.conf
+include ~/.config/sway/sway.config.d/input.conf
+include ~/.config/sway/sway.config.d/exec.conf
+
+include /etc/sway/config.d/*

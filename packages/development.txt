@@ -1,0 +1,45 @@
+# ==============================================
+# DEVELOPMENT TOOLS
+# ==============================================
+# Programming languages, version managers,
+# databases, and development utilities
+# ==============================================
+
+# === Version Manager ===
+# mise will be installed via curl script
+
+# === PHP Dependencies ===
+re2c
+gd
+libjpeg-turbo
+libpng
+libwebp
+freetype2
+libxpm
+libavif
+
+# === Database ===
+postgresql
+postgresql-libs
+
+# === Docker ===
+docker
+docker-compose
+docker-buildx
+
+# === Build Tools ===
+cmake
+make
+gcc
+clang
+
+# === Language Specific Tools ===
+jq
+libxml2
+libxml2-legacy
+
+# === Network Tools ===
+curl
+wget
+openssh
+rsync

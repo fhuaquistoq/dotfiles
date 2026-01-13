@@ -1,0 +1,15 @@
+{
+    "wireplumber": {
+        "format": " {icon} {volume}%   ",
+        "format-icons": [
+            "󰕿",
+            "󰖀",
+            "󰖀",
+            "󰕾",
+            "󰕾"
+        ],
+        "tooltip": false,
+        "max-volume": 100,
+        "scroll-step": 1
+    }
+}

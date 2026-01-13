@@ -1,0 +1,17 @@
+[tools]
+cmake = "4.2"
+gradle = "9.2"
+java = "lts"
+make = "4.4"
+maven = "3.9"
+node = "lts"
+php = "8.4"
+python = "3.12"
+rust = "stable"
+spring-boot = "4.0"
+usage = "2.11"
+uv = "0.9"
+zig = "0.15"
+
+[settings]
+ignored_config_paths = ["~/dev/dotfiles", "~/dev/dotfiles/mise"]

@@ -1,0 +1,49 @@
+# ==============================================
+# DESKTOP ENVIRONMENT PACKAGES
+# ==============================================
+# UI components, wallpapers, notifications,
+# status bars, and other desktop utilities
+# ==============================================
+
+# === Terminal Emulator ===
+kitty
+
+# === Status Bar ===
+waybar
+
+# === Notifications ===
+dunst
+libnotify
+# mako
+
+# === Application Launcher ===
+rofi
+
+# === Wallpaper Management ===
+# hyprpaper
+
+# === Clipboard ===
+wl-clipboard
+cliphist
+
+# === Screenshot Tools ===
+grim
+slurp
+satty
+
+# === Brightness Control ===
+brightnessctl
+
+# === Audio Control (GUI) ===
+pavucontrol
+
+# === Color Picker ===
+hyprpicker
+
+# === File Managers ===
+thunar
+ranger
+
+# === Security ===
+gnome-keyring
+libsecret

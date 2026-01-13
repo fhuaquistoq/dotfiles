@@ -1,0 +1,33 @@
+/* ===== Base ===== */
+@define-color bg-main     #1e1e2e; /* base */
+@define-color bg-alt      #181825; /* mantle */
+@define-color bg-dim      #11111b; /* crust */
+
+/* ===== Texto ===== */
+@define-color fg-main     #cdd6f4; /* text */
+@define-color fg-muted    #bac2de; /* subtext1 */
+@define-color fg-subtle   #a6adc8; /* subtext0 */
+
+/* ===== Superficies ===== */
+@define-color surface-0   #313244;
+@define-color surface-1   #45475a;
+@define-color surface-2   #585b70;
+
+/* ===== Bordes / overlays ===== */
+@define-color border      #cba6f7; /* mauve */
+@define-color overlay     #9399b2; /* overlay2 */
+
+/* ===== Acentos ===== */
+@define-color accent-primary   #cba6f7; /* mauve */
+@define-color accent-secondary #89b4fa; /* blue */
+@define-color accent-tertiary  #94e2d5; /* teal */
+
+/* ===== Estados ===== */
+@define-color state-success #a6e3a1; /* green */
+@define-color state-warning #f9e2af; /* yellow */
+@define-color state-error   #f38ba8; /* red */
+@define-color state-info    #74c7ec; /* sapphire */
+
+/* ===== Especiales ===== */
+@define-color highlight   #f5c2e7; /* pink */
+@define-color selection   #fab387; /* peach */

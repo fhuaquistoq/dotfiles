@@ -1,0 +1,17 @@
+# ==============================================
+# AUR PACKAGES
+# ==============================================
+# Packages from Arch User Repository
+# Requires paru or yay to be installed
+# ==============================================
+
+# === Browsers ===
+brave-bin
+
+# === Tools ===
+# waypaper
+mpvpaper
+
+# === Legacy Libraries ===
+# icu74
+# flite1

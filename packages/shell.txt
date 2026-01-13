@@ -1,0 +1,35 @@
+# ==============================================
+# SHELL & CLI TOOLS
+# ==============================================
+# Shell, prompt, and command-line utilities
+# ==============================================
+
+# === Shell ===
+fish
+
+# === Shell Prompt ===
+starship
+
+# === Modern CLI Replacements ===
+eza
+bat
+zoxide
+fzf
+
+# === File Search ===
+fd
+ripgrep
+mlocate
+
+# === System Monitoring ===
+btop
+htop
+
+# === Text Editors ===
+neovim
+# nano
+
+# === Git Tools ===
+git
+# lazygit
+# github-cli

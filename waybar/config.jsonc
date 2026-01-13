@@ -1,0 +1,41 @@
+{
+    "layer": "top",
+    "position": "top",
+
+    "height": 32,
+    "width": 1920,
+
+    "include": [
+        "./modules/separator.jsonc",
+
+        "./modules/fhuaquisto.jsonc",
+        "./modules/workspaces.jsonc",
+        "./modules/window.jsonc",
+
+        "./modules/clock.jsonc",
+
+        "./modules/backlight.jsonc",
+        "./modules/battery.jsonc",
+        "./modules/wireplumber.jsonc"
+    ],
+
+    "modules-left": [
+        "custom/fhuaquisto",
+        "custom/separator",
+        "sway/workspaces",
+        "custom/separator",
+        "sway/window"
+    ],
+
+    "modules-center": [
+        "clock"   
+    ],
+
+    "modules-right": [
+        "battery",
+        "custom/separator",
+        "backlight",
+        "custom/separator",
+        "wireplumber"
+    ]
+}

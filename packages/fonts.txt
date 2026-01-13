@@ -1,0 +1,19 @@
+# ==============================================
+# FONTS
+# ==============================================
+# System fonts and icon fonts
+# ==============================================
+
+# === Nerd Fonts ===
+ttf-jetbrains-mono-nerd
+ttf-firacode-nerd
+ttf-meslo-nerd
+ttf-nerd-fonts-symbols
+ttf-nerd-fonts-symbols-mono
+
+# === Standard Fonts ===
+ttf-liberation
+ttf-dejavu
+noto-fonts
+noto-fonts-emoji
+noto-fonts-cjk
