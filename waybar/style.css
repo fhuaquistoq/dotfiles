@@ -42,11 +42,19 @@ window#waybar {
 #workspaces button.empty {
     opacity: 0.4;
 }
+
 #workspaces button.focused {
     background: @accent-primary;
     color: @bg-main;
     transition: all 0.3s ease-in-out;
 }
+
+#workspaces button.active {
+    background: @accent-primary;
+    color: @bg-main;
+    transition: all 0.3s ease-in-out;
+}
+
 
 #workspaces button.urgent {
     background: @state-error;

@@ -9,8 +9,10 @@
         "./modules/separator.jsonc",
 
         "./modules/fhuaquisto.jsonc",
-        "./modules/workspaces.jsonc",
-        "./modules/window.jsonc",
+        "./modules/workspaces.sway.jsonc",
+        "./modules/workspaces.hyprland.jsonc",
+        "./modules/window.sway.jsonc",
+        "./modules/window.hyprland.jsonc",
 
         "./modules/clock.jsonc",
 
@@ -23,8 +25,10 @@
         "custom/fhuaquisto",
         "custom/separator",
         "sway/workspaces",
+        "hyprland/workspaces",
         "custom/separator",
-        "sway/window"
+        "sway/window",
+        "hyprland/window"
     ],
 
     "modules-center": [
