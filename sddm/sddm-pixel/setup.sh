@@ -54,6 +54,9 @@ echo -e "${YELLOW}→ Configuring SDDM...${NC}"
 if [ ! -f "$SDDM_CONF" ]; then
     echo "  Creating /etc/sddm.conf..."
     cat > "$SDDM_CONF" << 'EOF'
+[Theme]
+Current=sddm-pixel
+
 [General]
 Theme=sddm-pixel
 EOF
@@ -62,20 +65,32 @@ else
     echo "  Backing up original sddm.conf to sddm.conf.bak..."
     cp "$SDDM_CONF" "${SDDM_CONF}.bak"
     
-    # Update or add the Theme setting
-    if grep -q "^Theme=" "$SDDM_CONF"; then
-        # Replace existing Theme line
-        sed -i "s/^Theme=.*/Theme=sddm-pixel/" "$SDDM_CONF"
-    else
-        # Add Theme line under [General] section
-        if grep -q "^\[General\]" "$SDDM_CONF"; then
-            sed -i "/^\[General\]/a Theme=sddm-pixel" "$SDDM_CONF"
+    # Update or add the [Theme] section with Current
+    if grep -q "^\[Theme\]" "$SDDM_CONF"; then
+        # [Theme] section exists, update Current line
+        if grep -q "^Current=" "$SDDM_CONF"; then
+            sed -i "s/^Current=.*/Current=sddm-pixel/" "$SDDM_CONF"
         else
-            # No [General] section, add it
-            echo "" >> "$SDDM_CONF"
-            echo "[General]" >> "$SDDM_CONF"
-            echo "Theme=sddm-pixel" >> "$SDDM_CONF"
+            sed -i "/^\[Theme\]/a Current=sddm-pixel" "$SDDM_CONF"
         fi
+    else
+        # No [Theme] section, add it at the beginning
+        sed -i "1i[Theme]\nCurrent=sddm-pixel\n" "$SDDM_CONF"
+    fi
+    
+    # Update or add the [General] section with Theme
+    if grep -q "^\[General\]" "$SDDM_CONF"; then
+        # [General] section exists, update Theme line
+        if grep -q "^Theme=" "$SDDM_CONF"; then
+            sed -i "s/^Theme=.*/Theme=sddm-pixel/" "$SDDM_CONF"
+        else
+            sed -i "/^\[General\]/a Theme=sddm-pixel" "$SDDM_CONF"
+        fi
+    else
+        # No [General] section, add it
+        echo "" >> "$SDDM_CONF"
+        echo "[General]" >> "$SDDM_CONF"
+        echo "Theme=sddm-pixel" >> "$SDDM_CONF"
     fi
 fi
 
