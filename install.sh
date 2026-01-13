@@ -447,6 +447,39 @@ if ask_yes_no "Deploy dotfiles to ~/.config?"; then
 fi
 
 # ==============================================
+# Setup Media Directories
+# ==============================================
+
+print_header "Setting Up Media Directories"
+
+if ask_yes_no "Create media directories structure?"; then
+    print_info "Creating media directories..."
+    mkdir -p "$HOME/media/images/wallpapers"
+    mkdir -p "$HOME/media/music"
+    mkdir -p "$HOME/media/videos/wallpapers"
+    print_info "Media directories created ✓"
+    
+    # Copy wallpapers from SDDM theme
+    if [[ -d "$SCRIPT_DIR/sddm/sddm-pixel/backgrounds" ]]; then
+        print_info "Copying wallpapers..."
+        
+        # Copy video wallpapers (.mp4)
+        if ls "$SCRIPT_DIR/sddm/sddm-pixel/backgrounds/"*.mp4 &> /dev/null; then
+            cp "$SCRIPT_DIR/sddm/sddm-pixel/backgrounds/"*.mp4 "$HOME/media/videos/wallpapers/"
+            print_info "Video wallpapers copied to ~/media/videos/wallpapers/ ✓"
+        fi
+        
+        # Copy image wallpapers (.png)
+        if ls "$SCRIPT_DIR/sddm/sddm-pixel/backgrounds/"*.png &> /dev/null; then
+            cp "$SCRIPT_DIR/sddm/sddm-pixel/backgrounds/"*.png "$HOME/media/images/wallpapers/"
+            print_info "Image wallpapers copied to ~/media/images/wallpapers/ ✓"
+        fi
+    fi
+    
+    print_info "Media setup complete ✓"
+fi
+
+# ==============================================
 # Configure SDDM
 # ==============================================
 
