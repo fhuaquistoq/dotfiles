@@ -373,6 +373,22 @@ if command -v fish &> /dev/null; then
         
         print_info "Fish plugins installed ✓"
     fi
+    
+    # Set Fish as default shell
+    if ask_yes_no "Set Fish as your default shell?"; then
+        FISH_PATH=$(which fish)
+        
+        # Check if fish is in /etc/shells
+        if ! grep -q "^$FISH_PATH$" /etc/shells; then
+            print_info "Adding Fish to /etc/shells..."
+            echo "$FISH_PATH" | sudo tee -a /etc/shells > /dev/null
+        fi
+        
+        print_info "Setting Fish as default shell..."
+        chsh -s "$FISH_PATH"
+        print_info "Fish set as default shell ✓"
+        print_warning "You need to log out and log back in for the shell change to take effect!"
+    fi
 fi
 
 # ==============================================
