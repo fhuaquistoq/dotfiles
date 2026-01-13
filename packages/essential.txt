@@ -17,12 +17,8 @@ networkmanager
 grub
 efibootmgr
 
-# === Graphics Drivers (Intel) ===
-mesa
-lib32-mesa
-vulkan-intel
-lib32-vulkan-intel
-intel-media-driver
+# === Graphics Drivers (Base) ===
+vulkan-tools
 
 # === Audio System ===
 pipewire

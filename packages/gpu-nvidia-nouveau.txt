@@ -1,0 +1,11 @@
+# ==============================================
+# NVIDIA GRAPHICS DRIVERS (NOUVEAU)
+# ==============================================
+# Open source Nouveau drivers for Nvidia cards
+# Compatible with Sway and Hyprland
+# ==============================================
+
+mesa
+lib32-mesa
+vulkan-nouveau
+lib32-vulkan-nouveau

@@ -139,6 +139,86 @@ print_info "Updating package database..."
 sudo pacman -Sy
 
 # ==============================================
+# Install Graphics Drivers
+# ==============================================
+
+print_header "Graphics Drivers Selection"
+
+echo "Select your graphics card:"
+echo "1) Intel"
+echo "2) Nvidia"
+echo "3) Intel + Nvidia (Hybrid)"
+echo "4) None (Skip driver installation)"
+read -p "Enter option [1-4]: " GPU_OPTION
+
+case $GPU_OPTION in
+    1)
+        print_info "Installing Intel graphics drivers..."
+        install_packages "$PACKAGES_DIR/gpu-intel.txt" "Intel graphics drivers"
+        print_info "Intel drivers installed ✓"
+        ;;
+    2)
+        echo -e "\nSelect Nvidia driver type:"
+        echo "1) Proprietary (Better performance, NOT compatible with Sway)"
+        echo "2) Nouveau (Open source, compatible with Sway and Hyprland)"
+        read -p "Enter option [1-2]: " NVIDIA_TYPE
+        
+        case $NVIDIA_TYPE in
+            1)
+                print_info "Installing Nvidia proprietary drivers..."
+                install_packages "$PACKAGES_DIR/gpu-nvidia-proprietary.txt" "Nvidia proprietary drivers"
+                print_info "Nvidia proprietary drivers installed ✓"
+                print_warning "⚠️  IMPORTANT: Sway compositor will NOT work with proprietary Nvidia drivers!"
+                print_warning "⚠️  Use Hyprland instead, or reinstall with Nouveau drivers."
+                print_warning "⚠️  You may need to reboot after installation for drivers to work properly!"
+                ;;
+            2)
+                print_info "Installing Nvidia Nouveau drivers..."
+                install_packages "$PACKAGES_DIR/gpu-nvidia-nouveau.txt" "Nvidia Nouveau drivers"
+                print_info "Nvidia Nouveau drivers installed ✓"
+                ;;
+            *)
+                print_warning "Invalid option. Skipping Nvidia driver installation."
+                ;;
+        esac
+        ;;
+    3)
+        print_info "Installing Intel graphics drivers..."
+        install_packages "$PACKAGES_DIR/gpu-intel.txt" "Intel graphics drivers"
+        
+        echo -e "\nSelect Nvidia driver type for hybrid setup:"
+        echo "1) Proprietary (Better performance, NOT compatible with Sway)"
+        echo "2) Nouveau (Open source, compatible with Sway and Hyprland)"
+        read -p "Enter option [1-2]: " NVIDIA_TYPE
+        
+        case $NVIDIA_TYPE in
+            1)
+                print_info "Installing Nvidia proprietary drivers..."
+                install_packages "$PACKAGES_DIR/gpu-nvidia-proprietary.txt" "Nvidia proprietary drivers"
+                print_info "Hybrid graphics drivers installed ✓"
+                print_warning "⚠️  IMPORTANT: Sway compositor will NOT work with proprietary Nvidia drivers!"
+                print_warning "⚠️  Use Hyprland instead, or reinstall with Nouveau drivers."
+                print_warning "⚠️  You may need to reboot after installation for drivers to work properly!"
+                ;;
+            2)
+                print_info "Installing Nvidia Nouveau drivers..."
+                install_packages "$PACKAGES_DIR/gpu-nvidia-nouveau.txt" "Nvidia Nouveau drivers"
+                print_info "Hybrid graphics drivers installed ✓"
+                ;;
+            *)
+                print_warning "Invalid option. Skipping Nvidia driver installation."
+                ;;
+        esac
+        ;;
+    4)
+        print_info "Skipping graphics driver installation"
+        ;;
+    *)
+        print_warning "Invalid option. Skipping graphics driver installation."
+        ;;
+esac
+
+# ==============================================
 # Install Essential Packages
 # ==============================================
 

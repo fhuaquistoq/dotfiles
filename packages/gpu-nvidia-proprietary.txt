@@ -1,0 +1,12 @@
+# ==============================================
+# NVIDIA GRAPHICS DRIVERS (PROPRIETARY)
+# ==============================================
+# Proprietary Nvidia drivers
+# WARNING: Sway compositor will NOT work with
+# proprietary Nvidia drivers. Use Hyprland instead.
+# ==============================================
+
+nvidia
+nvidia-utils
+lib32-nvidia-utils
+nvidia-settings
