@@ -1,28 +1,24 @@
 #!/usr/bin/env bash
 
-# ==============================================
-# Dotfiles Installation Script for Arch Linux
-# ==============================================
-# This script automates the installation of
-# dotfiles and all required packages
-# ==============================================
+# ================================================================
+# DOTFILES INSTALLATION SCRIPT
+# ================================================================
+# Este script automatiza la instalación y configuración
+# de un entorno de desarrollo en Arch Linux.
+# ================================================================
 
-set -e  # Exit on error
 
-# Colors for output
+# ================================
+# Utilidades
+# ================================
+
+set -e
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGES_DIR="$SCRIPT_DIR/packages"
-
-# ==============================================
-# Helper Functions
-# ==============================================
+NC='\033[0m'
 
 print_header() {
     echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -61,6 +57,13 @@ ask_yes_no() {
         return 1
     fi
 }
+
+# ================================
+# Constants (can be overridden by flags)
+# ================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGES_DIR="$SCRIPT_DIR/packages"
 
 install_packages() {
     local package_file="$1"
