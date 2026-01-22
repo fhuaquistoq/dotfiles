@@ -1,10 +1,10 @@
-# =========================
-# Imports
-# =========================
+# ================================================
+# CONFIGURACIÓN PRINCIPAL DE SWAY
+# ================================================
 
-include ~/.config/sway/themes/catppuccin-mocha.conf
+include ~/.config/sway/theme.conf
 
-include ~/.config/sway/sway.config.d/theme.conf
+include ~/.config/sway/sway.config.d/general.conf
 include ~/.config/sway/sway.config.d/variables.conf
 include ~/.config/sway/sway.config.d/keybinding.conf
 include ~/.config/sway/sway.config.d/rules.conf
