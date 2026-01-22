@@ -1,0 +1,192 @@
+@import "theme.css";
+
+* {
+    border: none;
+    outline: none;
+    border-radius: 0;
+    min-height: 0;
+    font-family: "JetBrains Mono Nerd Font";
+    font-size: 12px;
+}
+
+*:hover {
+    box-shadow: none;
+    text-shadow: none;
+}
+
+window#waybar {
+    background: @background;
+    transition-duration: 0.3s;
+    border-bottom: 1px solid @border-active;
+    border-left: 1px solid @border-active;
+    border-right: 1px solid @border-active;
+}
+
+#custom-separator {
+    font-weight: bold;
+    font-size: 16px;
+    color: @accent;
+}
+
+#workspaces {
+    margin: 4px 0;
+    font-weight: bold;
+    color: @foreground;
+}
+
+#workspaces button {
+    padding: 0 12px;
+    margin: 0 4px;
+    border: 1px solid @background-layer2;
+    border-radius: 4px;
+    color: @foreground;
+    background: @background-layer2;
+    transition: all 0.3s ease-in-out;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+#workspaces button.empty {
+    opacity: 0.4;
+}
+
+#workspaces button.focused {
+    background: @accent;
+    color: @background;
+    transition: all 0.3s ease-in-out;
+}
+
+#workspaces button.active {
+    background: @accent;
+    color: @background;
+    transition: all 0.3s ease-in-out;
+}
+
+#workspaces button.urgent {
+    background: @error;
+    color: @background;
+}
+
+#workspaces button:hover {
+    border: 1px solid @accent;
+    color: @accent;
+}
+
+#workspaces button.focused:hover {
+    border: 1px solid @background;
+    color: @background;
+}
+
+#window {
+    font-weight: bold;
+    background: @accent;
+    color: @background;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#mode {
+    font-weight: bold;
+    background: @warning;
+    color: @background;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#submap {
+    font-weight: bold;
+    background: @warning;
+    color: @background;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#custom-playerctl {
+    font-weight: bold;
+    background: @green;
+    color: @background;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#clock {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @white;
+    margin: 8px 8px 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#wireplumber {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @blue;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#backlight {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @yellow;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#battery {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @green;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#network {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @magenta;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#memory {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @cyan;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#cpu {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @white;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#bluetooth {
+    font-weight: bold;
+    background: @background-layer2;
+    color: @blue;
+    margin: 8px 0;
+    padding: 0 8px;
+    border-radius: 4px;
+}
+
+#bluetooth.no-controller {
+    font-size: 0;
+    margin: 0;
+    padding: 0;
+}

@@ -1,0 +1,29 @@
+@define-color black [[palette.black]];
+@define-color red [[palette.red]];
+@define-color green [[palette.green]];
+@define-color yellow [[palette.yellow]];
+@define-color blue [[palette.blue]];
+@define-color magenta [[palette.magenta]];
+@define-color cyan [[palette.cyan]];
+@define-color white [[palette.white]];
+
+@define-color accent [[semantic.accent]];
+@define-color info [[semantic.info]];
+@define-color success [[semantic.success]];
+@define-color warning [[semantic.warning]];
+@define-color error [[semantic.error]];
+
+@define-color border-active [[applications.border:active]];
+@define-color border-focused [[applications.border:focused]];
+@define-color border-inactive [[applications.border:inactive]];
+@define-color border-urgent [[applications.border:urgent]];
+
+@define-color background [[applications.background]];
+@define-color background-layer0 [[applications.background:layer0]];
+@define-color background-layer1 [[applications.background:layer1]];
+@define-color background-layer2 [[applications.background:layer2]];
+
+@define-color foreground [[applications.foreground]];
+@define-color foreground-layer0 [[applications.foreground:layer0]];
+@define-color foreground-layer1 [[applications.foreground:layer1]];
+@define-color foreground-layer2 [[applications.foreground:layer2]];

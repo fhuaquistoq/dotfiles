@@ -1,0 +1,59 @@
+// ================================================
+// ARCHIVO DE CONFIGURACIÓN DE WAYBAR
+// ================================================
+
+{
+    "layer": "top",
+    "position": "top",
+
+    "height": 36,
+    "width": 1920,
+
+    "spacing": 8,
+
+    "include": [
+        "./modules/separator.jsonc",
+
+        "./modules/workspaces.sway.jsonc",
+        "./modules/workspaces.hyprland.jsonc",
+        "./modules/window.sway.jsonc",
+        "./modules/window.hyprland.jsonc",
+        "./modules/mode.sway.jsonc",
+        "./modules/submap.hyprland.jsonc",
+        "./modules/playerctl.jsonc",
+
+        "./modules/clock.jsonc",
+
+        "./modules/bluetooth.jsonc",
+        "./modules/cpu.jsonc",
+        "./modules/memory.jsonc",
+        "./modules/network.jsonc",
+        "./modules/backlight.jsonc",
+        "./modules/battery.jsonc",
+        "./modules/wireplumber.jsonc"
+    ],
+
+    "modules-left": [
+        "sway/workspaces",
+        "hyprland/workspaces",
+
+        "sway/window",
+        "hyprland/window",
+
+        "sway/mode",
+        "hyprland/submap",
+
+        "custom/playerctl"
+    ],
+
+    "modules-right": [
+        "cpu",
+        "memory",
+        "bluetooth",
+        "network",
+        "backlight",
+        "wireplumber",
+        "battery",
+        "clock"
+    ]
+}

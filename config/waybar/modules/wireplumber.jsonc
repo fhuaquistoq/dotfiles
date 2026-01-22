@@ -1,6 +1,6 @@
 {
     "wireplumber": {
-        "format": " {icon} {volume}%   ",
+        "format": "{icon} {volume}%",
         "format-icons": [
             "󰕿",
             "󰖀",

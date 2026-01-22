@@ -1,14 +1,13 @@
 {
     "hyprland/window": {
         "format": "{class}",
-        "icon": true,
-        "icon-size": 16,
         "rewrite": {
             "kitty": "Kitty",
             "brave-browser": "Brave",
             "code": "Visual Studio Code",
             "org.pulseaudio.pavucontrol": "PulseAudio Volume Control",
-            "jetbrains-toolbox": "JetBrains Toolbox"
+            "jetbrains-toolbox": "JetBrains Toolbox",
+            "": "Escritorio"
         }
     }
 }
