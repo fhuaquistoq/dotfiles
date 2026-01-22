@@ -1,0 +1,135 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """\
+$username@$hostname: ($directory)\
+$git_branch\
+$fill\
+$nodejs\
+$rust\
+$golang\
+$php\
+$bun\
+$java\
+$c\
+$conda\
+$zig\
+$cmd_duration\
+$time\
+\n$character\
+"""
+
+add_newline = false
+command_timeout = 3600000
+palette = "theme"
+
+[palettes.theme]
+black = "#16161D"
+red = "#C34043"
+green = "#76946A"
+yellow = "#C0A36E"
+blue = "#7E9CD8"
+magenta = "#957FB8"
+cyan = "#6A9589"
+white = "#C8C093"
+
+[fill]
+symbol = ' '
+
+[character]
+success_symbol = "[](bold green) "
+error_symbol = "[](bold red) "
+vimcmd_symbol = "[N](bold red) "
+vimcmd_replace_one_symbol = "[R](bold yellow) "
+vimcmd_visual_symbol = "[V](bold magenta) "
+
+[username]
+format = '[$user](bold blue)'
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = false
+ssh_symbol = ""
+format = '[$hostname](bold magenta)'
+disabled = false
+
+[directory]
+format = "[$path](bold blue)[$read_only]($read_only_style) "
+truncation_length = 100
+truncation_symbol = "…/"
+truncate_to_repo = true
+read_only = "󰌾"
+home_symbol = "~"
+
+[directory.substitutions]
+"~/downloads" = ""
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[cmd_duration]
+format = " took [ $duration]($style) "
+style = "bold fg:yellow"
+min_time = 500
+
+[git_branch]
+format = "-> [$symbol$branch]($style) "
+style = "bold fg:mauve"
+symbol = " "
+
+[git_status]
+format = '[$all_status$ahead_behind ]($style)'
+style = "fg:text bg:pink"
+
+[docker_context]
+disabled = true
+symbol = " "
+
+[python]
+disabled = false
+format = "[$symbol$pyenv_prefix($version)( $virtualenv)](fg:peach)"
+symbol = " "
+version_format = "$raw"
+
+[java]
+format = '[[ $symbol ($version) ](fg:red)]($style)'
+version_format = "$raw"
+symbol = " "
+disabled = false
+
+[c]
+format = '[[ $symbol ($version) ](fg:blue)]($style)'
+symbol = " "
+version_format = "$raw"
+disabled = false
+
+[zig]
+format = '[[ $symbol ($version) ](fg:peach)]($style)'
+version_format = "$raw"
+disabled = false
+
+[bun]
+version_format = "$raw"
+format = '[[ $symbol ($version) ](fg:text)]($style)'
+disabled = false
+
+[nodejs]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:green)]($style)'
+
+[rust]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:red)]($style)'
+
+[golang]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:teal)]($style)'
+
+[php]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:blue)]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+format = '[[   $time ](fg:subtext0)]($style)'
