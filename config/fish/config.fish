@@ -4,6 +4,7 @@ set fish_greeting
 # Environment Variables
 # ==============================================
 set -gx MISE_IGNORED_CONFIG_PATHS $HOME/dev/dotfiles
+set -gx STARSHIP_CONFIG $HOME/.config/starship/config.toml
 
 # ==============================================
 # PATH Configuration
