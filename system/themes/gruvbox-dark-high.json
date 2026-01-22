@@ -1,0 +1,54 @@
+{
+    "palette": {
+        "black": "#11110f",
+        "red": "#f2594b",
+        "green": "#b0b846",
+        "yellow": "#e9b143",
+        "blue": "#80aa9e",
+        "magenta": "#d3869b",
+        "cyan": "#8bba7f",
+        "white": "#ebdbb2"
+    },
+    "semantic": {
+        "accent": "palette.magenta",
+        "info": "palette.blue",
+        "success": "palette.green",
+        "warning": "palette.yellow",
+        "error": "palette.red",
+        
+        "text": "#ebdbb2",
+        "subtext1": "#d5c4a1",
+        "subtext0": "#bdae93",
+        
+        "overlay2": "#928374",
+        "overlay1": "#7c6f64",
+        "overlay0": "#665c54",
+        
+        "surface2": "#504945",
+        "surface1": "#3c3836",
+        "surface0": "#32302f",
+        
+        "base": "#2d2c2b",
+        "mantle": "#221f1d",
+        "crust": "#11110f"
+    },
+    "applications": {
+        "border:active": "semantic.accent",
+        "border:focused": "semantic.accent",
+        "border:inactive": "semantic.overlay0",
+        "border:urgent": "semantic.error",
+
+        "background": "semantic.crust",
+        "background:layer0": "semantic.mantle",
+        "background:layer1": "semantic.surface0",
+        "background:layer2": "semantic.surface1",
+
+        "foreground": "semantic.text",
+        "foreground:layer0": "semantic.subtext1",
+        "foreground:layer1": "semantic.subtext0",
+        "foreground:layer2": "semantic.overlay2",
+
+        "selection:background": "semantic.overlay0",
+        "selection:foreground": "semantic.text"
+    }
+}
