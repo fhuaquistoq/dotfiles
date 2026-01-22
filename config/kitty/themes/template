@@ -1,0 +1,70 @@
+# ================================
+# Colores
+# ================================
+
+foreground              [[applications.foreground]]
+background              [[applications.background]]
+selection_foreground    [[applications.selection:foreground]]
+selection_background    [[applications.selection:background]]
+
+# Cursor colors
+cursor                  [[applications.foreground]]
+cursor_text_color       [[applications.background]]
+
+# URL underline color when hovering with mouse
+url_color               [[palette.cyan]]
+# Kitty window border colors
+active_border_color     [[applications.border:active]]
+inactive_border_color   [[applications.border:inactive]]
+bell_border_color       [[applications.border:urgent]]
+
+# OS Window titlebar colors
+wayland_titlebar_color system
+macos_titlebar_color system
+
+# Tab bar colors
+active_tab_foreground   [[applications.foreground]]
+active_tab_background   [[semantic.accent]]
+inactive_tab_foreground [[applications.foreground:layer1]]
+inactive_tab_background [[applications.background:layer1]]
+tab_bar_background      [[applications.background:layer0]]
+# Colors for marks (marked text in the terminal)
+mark1_foreground [[applications.background]]
+mark1_background [[semantic.accent]]
+mark2_foreground [[applications.background]]
+mark2_background [[semantic.accent]]
+mark3_foreground [[applications.background]]
+mark3_background [[semantic.accent]]
+
+# The 16 terminal colors
+
+# black
+color0 [[palette.black]]
+color8 [[palette.black]]
+
+# red
+color1 [[palette.red]]
+color9 [[palette.red]]
+
+# green
+color2  [[palette.green]]
+color10 [[palette.green]]
+
+# yellow
+color3  [[palette.yellow]]
+color11 [[palette.yellow]]
+
+# blue
+color4  [[palette.blue]]
+color12 [[palette.blue]]
+
+# magenta
+color5  [[palette.magenta]]
+color13 [[palette.magenta]]
+# cyan
+color6  [[palette.cyan]]
+color14 [[palette.cyan]]
+
+# white
+color7  [[palette.white]]
+color15 [[palette.white]]
