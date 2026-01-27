@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Script de instalación de Arch Linux
-# Configuración interactiva de particiones y instalación base
-
 set -e
 
 # Colores para output
@@ -253,7 +250,7 @@ install_base() {
     echo "¿Deseas añadir paquetes adicionales al pacstrap?"
     echo "Ejemplos: base-devel, vim, nano, networkmanager, grub, efibootmgr"
     echo ""
-    read -p "Paquetes adicionales (separados por espacio) [ninguno]: " extra_packages
+    read -rp "Paquetes adicionales (separados por espacio) [ninguno]: " extra_packages
     
     PACKAGES="base linux linux-firmware"
     if [[ -n "$extra_packages" ]]; then
@@ -264,7 +261,7 @@ install_base() {
     print_warning "Esto puede tardar varios minutos..."
     echo ""
     
-    pacstrap /mnt $PACKAGES
+    pacstrap /mnt "$PACKAGES"
     
     print_success "Sistema base instalado correctamente"
 }
@@ -286,12 +283,12 @@ copy_config_script() {
     print_header "PREPARANDO SCRIPT DE CONFIGURACIÓN"
     
     # Determinar la ruta del script config-arch.sh
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    CONFIG_SCRIPT="$SCRIPT_DIR/config-arch.sh"
+    # SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    CONFIG_SCRIPT="https://raw.githubusercontent.com/fhuaquistoq/dotfiles/main/scripts/config-arch.sh"
     
     if [[ -f "$CONFIG_SCRIPT" ]]; then
         print_info "Copiando script de configuración al sistema instalado..."
-        cp "$CONFIG_SCRIPT" /mnt/root/config-arch.sh
+        curl -o /mnt/root/config-arch.sh "$CONFIG_SCRIPT"
         chmod +x /mnt/root/config-arch.sh
         print_success "Script copiado a /root/config-arch.sh"
     else
