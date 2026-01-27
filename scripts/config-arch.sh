@@ -64,7 +64,7 @@ configure_timezone() {
     done
     
     echo ""
-    read -p "Selecciona el número de la región: " region_choice
+    read -rp "Selecciona el número de la región: " region_choice
     
     SELECTED_REGION="${PRIORITY_REGIONS[$((region_choice-1))]}"
     
@@ -122,7 +122,7 @@ configure_timezone() {
     done
     
     echo ""
-    read -p "Selecciona el número de la zona horaria: " zone_choice
+    read -rp "Selecciona el número de la zona horaria: " zone_choice
     
     SELECTED_ZONE="${zones[$((zone_choice-1))]}"
     TIMEZONE="$SELECTED_REGION/$SELECTED_ZONE"
@@ -158,7 +158,7 @@ configure_locale() {
     echo "8) Otro (especificar)"
     echo ""
     
-    read -p "Selecciona una opción [1]: " locale_choice
+    read -rp "Selecciona una opción [1]: " locale_choice
     locale_choice=${locale_choice:-1}
     
     case $locale_choice in
