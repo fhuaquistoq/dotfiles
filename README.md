@@ -55,10 +55,9 @@ Scripts automatizados para instalar Arch Linux de manera rápida y sencilla:
 ```bash
 # 1. Descargar scripts
 curl -O https://raw.githubusercontent.com/fhuaquistoq/dotfiles/main/scripts/install-arch.sh
-curl -O https://raw.githubusercontent.com/fhuaquistoq/dotfiles/main/scripts/config-arch.sh
 
 # Dar permisos de ejecución
-chmod +x install-arch.sh config-arch.sh
+chmod +x install-arch.sh
 
 # 2. Ejecutar instalación base (particionado, formateo, pacstrap)
 ./install-arch.sh
