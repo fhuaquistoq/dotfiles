@@ -1,14 +1,10 @@
 set fish_greeting
 
-# ==============================================
-# Environment Variables
-# ==============================================
+# ----- Variables de entorno -----
 set -gx MISE_IGNORED_CONFIG_PATHS $HOME/dev/dotfiles
 set -gx STARSHIP_CONFIG $HOME/.config/starship/config.toml
 
-# ==============================================
-# PATH Configuration
-# ==============================================
+# ----- Configuración de PATH -----
 fish_add_path -m $HOME/.local/bin
 
 fish_config theme choose "Catppuccin Mocha"

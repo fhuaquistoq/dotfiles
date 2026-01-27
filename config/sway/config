@@ -1,7 +1,3 @@
-# ================================================
-# CONFIGURACIÓN PRINCIPAL DE SWAY
-# ================================================
-
 include ~/.config/sway/theme.conf
 
 include ~/.config/sway/sway.config.d/general.conf
