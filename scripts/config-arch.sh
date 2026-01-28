@@ -150,7 +150,7 @@ configure_locale() {
     echo ""
     echo "1) es_ES (Español - España)"
     echo "2) es_MX (Español - México)"
-    echo "3) es_AR (Español - Argentina)"
+    echo "3) es_PE (Español - Perú)"
     echo "4) es_CL (Español - Chile)"
     echo "5) es_CO (Español - Colombia)"
     echo "6) en_US (English - USA)"
@@ -164,7 +164,7 @@ configure_locale() {
     case $locale_choice in
         1) SELECTED_LOCALE="es_ES" ;;
         2) SELECTED_LOCALE="es_MX" ;;
-        3) SELECTED_LOCALE="es_AR" ;;
+        3) SELECTED_LOCALE="es_PE" ;;
         4) SELECTED_LOCALE="es_CL" ;;
         5) SELECTED_LOCALE="es_CO" ;;
         6) SELECTED_LOCALE="en_US" ;;
@@ -192,6 +192,40 @@ configure_locale() {
     # Configurar locale.conf
     echo "LANG=${SELECTED_LOCALE}.UTF-8" > /etc/locale.conf
     print_success "Locale configurado correctamente"
+}
+
+configure_vconsole() {
+    print_header "CONFIGURACIÓN DEL TECLADO (VCONSOLE)"
+
+    echo "Configura el mapa de teclado para la consola después de reiniciar."
+    echo "Ejemplos comunes: us, es, la-latin1, es_dvorak"
+    echo ""
+
+    while true; do
+        read -p "Ingresa el keymap usado con loadkeys: " KEYMAP
+
+        if [[ -z "$KEYMAP" ]]; then
+            print_error "El keymap no puede estar vacío"
+            continue
+        fi
+
+        if loadkeys "$KEYMAP" &>/dev/null; then
+            print_success "Keymap válido: $KEYMAP"
+            break
+        else
+            print_error "Keymap inválido o no encontrado"
+        fi
+    done
+
+    print_info "Creando /etc/vconsole.conf..."
+    cat > /etc/vconsole.conf <<EOF
+KEYMAP=$KEYMAP
+EOF
+
+    print_success "Teclado configurado correctamente"
+    echo ""
+    print_info "Contenido de /etc/vconsole.conf:"
+    cat /etc/vconsole.conf
 }
 
 # Configurar hostname
@@ -389,6 +423,7 @@ main() {
     
     configure_timezone
     configure_locale
+    configure_vconsole
     configure_hostname
     configure_root_password
     create_user
