@@ -59,186 +59,157 @@ show_disks() {
 # Seleccionar disco
 select_disk() {
     print_header "SELECCIÓN DE DISCO"
-    show_disks
-    
+
+    mapfile -t DISKS < <(lsblk -dpno NAME,SIZE,MODEL | grep -E "/dev/(sd|nvme|vd)")
+
+    if [[ ${#DISKS[@]} -eq 0 ]]; then
+        print_error "No se encontraron discos disponibles"
+        exit 1
+    fi
+
+    echo "Discos disponibles:"
+    for i in "${!DISKS[@]}"; do
+        echo "$((i+1))) ${DISKS[$i]}"
+    done
+    echo ""
+
     while true; do
-        read -p "Ingresa el disco a usar (ejemplo: sda, nvme0n1, vda): " disk_input
-        DISK="/dev/${disk_input}"
-        
-        if [[ -b "$DISK" ]]; then
+        read -p "Selecciona el disco por número: " choice
+        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#DISKS[@]} )); then
+            DISK=$(echo "${DISKS[$((choice-1))]}" | awk '{print $1}')
             print_success "Disco seleccionado: $DISK"
             lsblk "$DISK"
-            echo ""
-            read -p "¿Es correcto este disco? (s/n): " confirm
-            if [[ "$confirm" == "s" || "$confirm" == "S" ]]; then
-                break
-            fi
+            break
         else
-            print_error "El disco $DISK no existe. Intenta de nuevo."
+            print_error "Selección inválida"
         fi
     done
 }
 
 # Preguntar si borrar todo el disco
-ask_wipe_disk() {
-    print_header "MODO DE PARTICIONADO"
-    echo "1) Borrar TODO el disco y crear particiones nuevas"
-    echo "2) Usar solo el espacio libre disponible"
-    echo ""
-    
-    while true; do
-        read -p "Selecciona una opción (1/2): " option
-        case $option in
-            1)
-                WIPE_DISK="yes"
-                print_warning "Se borrará TODO el contenido del disco $DISK"
-                read -p "¿Estás seguro? (escriba 'SI' para confirmar): " confirm
-                if [[ "$confirm" == "SI" ]]; then
-                    break
-                else
-                    print_info "Operación cancelada"
-                    exit 0
-                fi
-                ;;
-            2)
-                WIPE_DISK="no"
-                print_info "Se usará el espacio libre disponible"
-                break
-                ;;
-            *)
-                print_error "Opción inválida"
-                ;;
-        esac
-    done
-}
+ask_partitioning() {
+    print_header "PARTICIONADO DEL DISCO"
 
-# Configurar tamaños de particiones
-configure_partitions() {
-    print_header "CONFIGURACIÓN DE PARTICIONES"
-    
-    # Partición Boot (EFI)
-    echo -e "${BLUE}Partición BOOT (EFI):${NC}"
-    echo "Tamaño recomendado: 512M - 1G"
-    read -p "Tamaño de la partición boot [512M]: " boot_input
-    BOOT_SIZE="${boot_input:-512M}"
-    print_success "Boot: $BOOT_SIZE"
-    echo ""
-    
-    # Partición Swap
-    echo -e "${BLUE}Partición SWAP:${NC}"
-    echo "Tamaño recomendado: RAM/2 para hibernación, o 2-4G sin hibernación"
-    read -p "Tamaño de la partición swap [2G]: " swap_input
-    SWAP_SIZE="${swap_input:-2G}"
-    print_success "Swap: $SWAP_SIZE"
-    echo ""
-    
-    # Partición Root
-    echo -e "${BLUE}Partición ROOT:${NC}"
-    echo "Por defecto se usará todo el espacio restante"
-    read -p "Presiona Enter para continuar..."
-    print_success "Root: Espacio restante"
-    echo ""
-    
-    # Resumen
-    print_header "RESUMEN DE PARTICIONES"
-    echo "Disco: $DISK"
-    echo "Boot (EFI): $BOOT_SIZE"
-    echo "Swap: $SWAP_SIZE"
-    echo "Root: Espacio restante"
-    echo ""
-    read -p "¿Continuar con esta configuración? (s/n): " confirm
-    if [[ "$confirm" != "s" && "$confirm" != "S" ]]; then
-        print_info "Operación cancelada"
-        exit 0
+    read -p "¿Deseas particionar el disco ahora con cfdisk? (s/n): " confirm
+    if [[ "$confirm" == "s" || "$confirm" == "S" ]]; then
+        print_info "Abriendo cfdisk en $DISK"
+        cfdisk "$DISK"
+    else
+        print_info "Usando particiones existentes"
     fi
-}
 
-# Crear particiones
-create_partitions() {
-    print_header "CREANDO PARTICIONES"
-    
-    # Determinar el tipo de disco (SATA/SCSI vs NVMe)
-    if [[ "$DISK" == *"nvme"* ]]; then
-        PART_PREFIX="${DISK}p"
-    else
-        PART_PREFIX="${DISK}"
-    fi
-    
-    if [[ "$WIPE_DISK" == "yes" ]]; then
-        print_info "Borrando tabla de particiones..."
-        wipefs -a "$DISK"
-        
-        print_info "Creando nueva tabla de particiones GPT..."
-        parted -s "$DISK" mklabel gpt
-        
-        print_info "Creando partición boot..."
-        parted -s "$DISK" mkpart "EFI" fat32 1MiB "$BOOT_SIZE"
-        parted -s "$DISK" set 1 esp on
-        
-        print_info "Creando partición swap..."
-        SWAP_END=$(parted -s "$DISK" unit MiB print free | grep "$BOOT_SIZE" | awk '{print $2}')
-        parted -s "$DISK" mkpart "SWAP" linux-swap "$BOOT_SIZE" "${SWAP_SIZE}"
-        
-        print_info "Creando partición root..."
-        parted -s "$DISK" mkpart "ROOT" ext4 "${SWAP_SIZE}" "100%"
-        
-        BOOT_PARTITION="${PART_PREFIX}1"
-        SWAP_PARTITION="${PART_PREFIX}2"
-        ROOT_PARTITION="${PART_PREFIX}3"
-    else
-        print_error "El modo 'espacio libre' requiere configuración manual"
-        print_info "Por favor, crea las particiones manualmente con cfdisk o fdisk"
-        print_info "Luego ejecuta el script nuevamente"
-        exit 1
-    fi
-    
-    # Esperar a que el kernel reconozca las particiones
-    sleep 2
-    partprobe "$DISK"
-    sleep 2
-    
-    print_success "Particiones creadas:"
+    print_info "Particiones actuales:"
     lsblk "$DISK"
 }
 
-# Formatear particiones
+# Configurar tamaños de particiones
+select_partitions() {
+    print_header "ASIGNACIÓN DE PARTICIONES"
+
+    echo "Particiones disponibles:"
+    lsblk -lp "$DISK"
+    echo ""
+
+    while true; do
+        read -p "Ingresa la partición EFI/BOOT (ej: /dev/sda1): " BOOT_PARTITION
+        [[ -b "$BOOT_PARTITION" ]] && break
+        print_error "Partición inválida"
+    done
+
+    while true; do
+        read -p "Ingresa la partición SWAP (ej: /dev/sda2): " SWAP_PARTITION
+        [[ -b "$SWAP_PARTITION" ]] && break
+        print_error "Partición inválida"
+    done
+
+    while true; do
+        read -p "Ingresa la partición ROOT (ej: /dev/sda3): " ROOT_PARTITION
+        [[ -b "$ROOT_PARTITION" ]] && break
+        print_error "Partición inválida"
+    done
+
+    print_success "Resumen:"
+    echo "BOOT: $BOOT_PARTITION"
+    echo "SWAP: $SWAP_PARTITION"
+    echo "ROOT: $ROOT_PARTITION"
+    echo ""
+
+    read -p "¿Continuar con estas particiones? (s/n): " confirm
+    [[ "$confirm" == "s" || "$confirm" == "S" ]] || exit 0
+}
+
+# Crear particiones
 format_partitions() {
     print_header "FORMATEANDO PARTICIONES"
-    
-    print_info "Formateando boot como FAT32..."
+
+    print_warning "ESTO BORRARÁ LOS DATOS DE LAS PARTICIONES SELECCIONADAS"
+    read -p "Escribe 'SI' para continuar: " confirm
+    [[ "$confirm" == "SI" ]] || exit 0
+
+    print_info "Formateando BOOT como FAT32..."
     mkfs.fat -F32 "$BOOT_PARTITION"
-    print_success "Boot formateada"
-    
-    print_info "Configurando swap..."
+
+    print_info "Configurando SWAP..."
     mkswap "$SWAP_PARTITION"
-    print_success "Swap configurada"
-    
-    print_info "Formateando root como ext4..."
+
+    print_info "Formateando ROOT como ext4..."
     mkfs.ext4 -F "$ROOT_PARTITION"
-    print_success "Root formateada"
+
+    print_success "Formateo completado"
 }
 
 # Montar particiones
 mount_partitions() {
     print_header "MONTANDO PARTICIONES"
-    
-    print_info "Montando root en /mnt..."
+
+    print_info "Montando ROOT en /mnt..."
     mount "$ROOT_PARTITION" /mnt
-    
-    print_info "Creando directorio /mnt/boot..."
+
+    print_info "Creando /mnt/boot..."
     mkdir -p /mnt/boot
-    
-    print_info "Montando boot en /mnt/boot..."
+
+    print_info "Montando BOOT..."
     mount "$BOOT_PARTITION" /mnt/boot
-    
-    print_info "Activando swap..."
+
+    print_info "Activando SWAP..."
     swapon "$SWAP_PARTITION"
-    
-    print_success "Todas las particiones montadas correctamente"
+
+    print_success "Particiones montadas correctamente"
+    echo ""
+    lsblk
     echo ""
     df -h /mnt
-    echo ""
     swapon --show
+}
+
+config_keyring() {
+    print_header "CONFIGURANDO KEYRING DE PACMAN"
+
+    print_info "Inicializando keyring..."
+    pacman-key --init
+    if [[ $? -ne 0 ]]; then
+        print_error "Error al inicializar el keyring"
+        exit 1
+    fi
+    print_success "Keyring inicializado"
+
+    print_info "Poblando keyring con claves oficiales de Arch Linux..."
+    pacman-key --populate archlinux
+    if [[ $? -ne 0 ]]; then
+        print_error "Error al poblar el keyring"
+        exit 1
+    fi
+    print_success "Keyring poblado correctamente"
+
+    print_info "Actualizando y refrescando claves..."
+    pacman-key --refresh-keys
+    if [[ $? -ne 0 ]]; then
+        print_warning "Hubo errores al refrescar algunas claves (puede ser normal si no hay red)"
+    else
+        print_success "Claves refrescadas correctamente"
+    fi
+
+    print_success "Configuración del keyring completada"
 }
 
 # Instalar sistema base
@@ -330,11 +301,11 @@ main() {
     read -p "Presiona Enter para continuar..."
     
     select_disk
-    ask_wipe_disk
-    configure_partitions
-    create_partitions
+    ask_partitioning
+    select_partitions
     format_partitions
     mount_partitions
+    config_keyring
     install_base
     generate_fstab
     copy_config_script
