@@ -17,9 +17,6 @@ networkmanager
 grub
 efibootmgr
 
-# === Graphics Drivers (Base) ===
-vulkan-tools
-
 # === Audio System ===
 pipewire
 pipewire-alsa

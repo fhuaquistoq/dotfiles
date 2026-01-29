@@ -13,13 +13,12 @@ starship
 # === Modern CLI Replacements ===
 eza
 bat
-zoxide
 fzf
 
 # === File Search ===
-fd
-ripgrep
-mlocate
+#fd
+#ripgrep
+#mlocate
 
 # === System Monitoring ===
 btop

@@ -1,0 +1,64 @@
+{
+	"sources": [
+		"~/.config",
+		"~/dev/dotfiles/config"
+	],
+	"apps": [
+		{
+			"name": "waybar",
+			"template": "themes/template",
+			"target": "theme.css",
+			"format": "css",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "sway",
+			"template": "themes/template",
+			"target": "theme.conf",
+			"format": "conf",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "hypr",
+			"template": "themes/template",
+			"target": "theme.conf",
+			"format": "conf",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "mako",
+			"template": "themes/template",
+			"target": "config",
+			"format": "conf",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "kitty",
+			"template": "themes/template",
+			"target": "theme.conf",
+			"format": "conf",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "starship",
+			"template": "themes/template",
+			"target": "config.toml",
+			"format": "toml",
+			"sudo": false,
+			"transform": "hex_hash"
+		},
+		{
+			"name": "hypr",
+			"template": "themes/template",
+			"target": "theme.conf",
+			"format": "conf",
+			"sudo": false,
+			"transform": "hex"
+		}
+	]
+}

@@ -28,10 +28,10 @@ docker-compose
 docker-buildx
 
 # === Build Tools ===
-cmake
-make
-gcc
-clang
+#cmake
+#make
+#gcc
+#clang
 
 # === Language Specific Tools ===
 jq
@@ -40,6 +40,6 @@ libxml2-legacy
 
 # === Network Tools ===
 curl
-wget
+# wget
 openssh
-rsync
+# rsync

@@ -6,11 +6,11 @@
 # ==============================================
 
 # === Media Players ===
-vlc
-mpv
+# vlc
+# mpv
 
 # === Remote Desktop ===
-remmina
+# remmina
 # freerdp
 
 # === Archive Managers ===

@@ -1,57 +1,88 @@
 #!/usr/bin/env bash
 
-# Script de configuración de Arch Linux - Parte 2
-# Ejecutar dentro de arch-chroot
+# ================================================
+# INSTALADOR DE ARCH LINUX - PARTE 2
+# ================================================
 
 set -e
 
-# Colores para output
+# ================================
+# Utilidades
+# ================================
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Funciones de utilidad
+print_header() {
+    echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}$1${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+}
+
+print_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[OK]${NC} $1"
+    echo -e "${GREEN}[✓]${NC} $1"
 }
 
-print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+ask_yes_no() {
+    local prompt="$1"
+    local default="${2:-y}"
+    
+    if [[ "$default" == "y" ]]; then
+        prompt="$prompt [Y/n]: "
+    else
+        prompt="$prompt [y/N]: "
+    fi
+    
+    read -p "$prompt" -n 1 -r
+    echo
+    
+    if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY && "$default" == "y" ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
-print_warning() {
-    echo -e "${YELLOW}[ADVERTENCIA]${NC} $1"
-}
+# ================================
+# Variables Globales
+# ================================
 
-print_header() {
-    echo ""
-    echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}$1${NC}"
-    echo -e "${GREEN}========================================${NC}"
-    echo ""
-}
-
-# Variables globales
 TIMEZONE=""
 SELECTED_LOCALE=""
 HOSTNAME=""
 USERNAME=""
 BOOT_MODE=""
 
+# ================================
+# Funciones de Configuración Regional
+# ================================
+
 # Configurar zona horaria
 configure_timezone() {
     print_header "CONFIGURACIÓN DE ZONA HORARIA"
     
+    print_info "La zona horaria determina la hora local de tu sistema"
+    echo ""
+    
     # Regiones priorizadas
     PRIORITY_REGIONS=("America" "Europe" "Asia" "Africa" "Australia" "Pacific")
     
-    echo "Selecciona una región:"
+    print_info "Regiones disponibles:"
     echo ""
     
     # Mostrar regiones priorizadas primero
@@ -130,32 +161,42 @@ configure_timezone() {
     print_success "Zona horaria seleccionada: $TIMEZONE"
     
     # Aplicar configuración
-    print_info "Configurando zona horaria..."
+    echo ""
+    print_info "Aplicando configuración de zona horaria..."
     ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    print_success "Enlace simbólico creado correctamente"
+    
+    print_info "Sincronizando el reloj del sistema con el hardware..."
     hwclock --systohc
-    print_success "Zona horaria configurada"
+    print_success "✓ Reloj del hardware sincronizado"
     
     # Configurar NTP
-    print_info "Habilitando sincronización de tiempo con NTP..."
+    print_info "Habilitando sincronización automática de tiempo (NTP)..."
     if command -v timedatectl &> /dev/null; then
-        timedatectl set-ntp true 2>/dev/null || print_warning "No se pudo habilitar NTP (se configurará en el próximo arranque)"
+        timedatectl set-ntp true 2>/dev/null || print_warning "NTP se configurará en el próximo arranque"
     fi
+    
+    echo ""
+    print_success "✓ Zona horaria configurada: $TIMEZONE"
 }
 
 # Configurar locale
 configure_locale() {
-    print_header "CONFIGURACIÓN DE LOCALE"
+    print_header "CONFIGURACIÓN DE LOCALE (IDIOMA)"
     
-    echo "¿Qué locale deseas usar?"
+    print_info "El locale define el idioma del sistema y formatos regionales"
     echo ""
-    echo "1) es_ES (Español - España)"
-    echo "2) es_MX (Español - México)"
-    echo "3) es_PE (Español - Perú)"
-    echo "4) es_CL (Español - Chile)"
-    echo "5) es_CO (Español - Colombia)"
-    echo "6) en_US (English - USA)"
-    echo "7) pt_BR (Português - Brasil)"
-    echo "8) Otro (especificar)"
+    
+    echo "Selecciona el idioma y región de tu sistema:"
+    echo ""
+    echo "  1) 🇪🇸 es_ES (Español - España)"
+    echo "  2) 🇲🇽 es_MX (Español - México)"
+    echo "  3) 🇵🇪 es_PE (Español - Perú)"
+    echo "  4) 🇨🇱 es_CL (Español - Chile)"
+    echo "  5) 🇨🇴 es_CO (Español - Colombia)"
+    echo "  6) 🇺🇸 en_US (English - USA)"
+    echo "  7) 🇧🇷 pt_BR (Português - Brasil)"
+    echo "  8) 🌍 Otro (especificar)"
     echo ""
     
     read -rp "Selecciona una opción [1]: " locale_choice
@@ -178,27 +219,45 @@ configure_locale() {
             ;;
     esac
     
+    echo ""
     print_success "Locale seleccionado: $SELECTED_LOCALE"
+    echo ""
     
     # Descomentar locales UTF-8 e ISO
-    print_info "Configurando /etc/locale.gen..."
+    print_info "[1/3] Habilitando locale en /etc/locale.gen..."
     sed -i "s/^#${SELECTED_LOCALE}.UTF-8/${SELECTED_LOCALE}.UTF-8/" /etc/locale.gen
     sed -i "s/^#${SELECTED_LOCALE} ISO/${SELECTED_LOCALE} ISO/" /etc/locale.gen
+    print_success "Locale habilitado"
     
     # Generar locales
-    print_info "Generando locales..."
+    print_info "[2/3] Generando archivos de locale..."
     locale-gen
+    print_success "Locales generados"
     
     # Configurar locale.conf
+    print_info "[3/3] Creando /etc/locale.conf..."
     echo "LANG=${SELECTED_LOCALE}.UTF-8" > /etc/locale.conf
-    print_success "Locale configurado correctamente"
+    print_success "Archivo de configuración creado"
+    
+    echo ""
+    print_success "✓ Locale configurado: ${SELECTED_LOCALE}.UTF-8"
 }
 
-configure_vconsole() {
-    print_header "CONFIGURACIÓN DEL TECLADO (VCONSOLE)"
+# ================================
+# Funciones de Configuración del Sistema
+# ================================
 
-    echo "Configura el mapa de teclado para la consola después de reiniciar."
-    echo "Ejemplos comunes: us, es, la-latin1, es_dvorak"
+# Configurar teclado de consola
+configure_vconsole() {
+    print_header "CONFIGURACIÓN DEL TECLADO (CONSOLA)"
+    
+    print_info "Configura el mapa de teclado para la consola virtual (TTY)"
+    echo ""
+    echo "Ejemplos comunes de keymaps:"
+    echo "  • us         (Teclado inglés americano)"
+    echo "  • es         (Teclado español)"
+    echo "  • la-latin1  (Teclado latinoamericano)"
+    echo "  • dvorak     (Distribución Dvorak)"
     echo ""
 
     while true; do
@@ -217,23 +276,31 @@ configure_vconsole() {
         fi
     done
 
-    print_info "Creando /etc/vconsole.conf..."
+    echo ""
+    print_info "Creando archivo /etc/vconsole.conf..."
     cat > /etc/vconsole.conf <<EOF
 KEYMAP=$KEYMAP
 EOF
 
-    print_success "Teclado configurado correctamente"
+    print_success "Archivo creado exitosamente"
     echo ""
-    print_info "Contenido de /etc/vconsole.conf:"
+    print_info "Configuración aplicada:"
     cat /etc/vconsole.conf
+    echo ""
+    print_success "✓ Mapa de teclado configurado: $KEYMAP"
 }
 
 # Configurar hostname
 configure_hostname() {
-    print_header "CONFIGURACIÓN DE HOSTNAME"
+    print_header "CONFIGURACIÓN DEL NOMBRE DEL EQUIPO"
+    
+    print_info "El hostname es el nombre que identifica tu computadora en la red"
+    echo ""
+    echo "Ejemplos: archlinux, pc-casa, laptop-trabajo, servidor-1"
+    echo ""
     
     while true; do
-        read -p "Ingresa el nombre del host (hostname): " hostname_input
+        read -p "Ingresa el nombre del equipo (hostname): " hostname_input
         
         if [[ -n "$hostname_input" ]]; then
             HOSTNAME="$hostname_input"
@@ -245,169 +312,273 @@ configure_hostname() {
     done
     
     # Configurar hostname
+    echo ""
+    print_info "Creando archivo /etc/hostname..."
     echo "$HOSTNAME" > /etc/hostname
+    print_success "Hostname guardado"
     
     # Configurar /etc/hosts
+    print_info "Configurando archivo /etc/hosts..."
     cat > /etc/hosts << EOF
 127.0.0.1   localhost
 ::1         localhost
 127.0.1.1   ${HOSTNAME}.localdomain ${HOSTNAME}
 EOF
+    print_success "Archivo hosts configurado"
     
-    print_success "Hostname configurado"
+    echo ""
+    print_success "✓ Nombre del equipo: $HOSTNAME"
 }
+
+# ================================
+# Funciones de Usuarios y Permisos
+# ================================
 
 # Configurar contraseña de root
 configure_root_password() {
     print_header "CONFIGURACIÓN DE CONTRASEÑA ROOT"
     
-    print_warning "Configura una contraseña segura para el usuario root"
+    print_info "El usuario root tiene control total sobre el sistema"
+    echo ""
+    print_warning "⚠️  Importante: Usa una contraseña segura"
+    print_info "Requisitos recomendados:"
+    echo "  • Mínimo 8 caracteres"
+    echo "  • Combinar mayúsculas, minúsculas, números y símbolos"
+    echo ""
+    
     while ! passwd; do
-        print_error "Error al configurar la contraseña. Intenta de nuevo."
+        echo ""
+        print_error "Error al configurar la contraseña. Intenta nuevamente."
+        echo ""
     done
-    print_success "Contraseña de root configurada"
+    
+    echo ""
+    print_success "✓ Contraseña de root configurada exitosamente"
 }
 
 # Crear usuario nuevo
 create_user() {
-    print_header "CREACIÓN DE USUARIO"
+    print_header "CREACIÓN DE USUARIO PERSONAL"
+    
+    print_info "Crea un usuario para uso diario (no uses root para tareas normales)"
+    echo ""
     
     while true; do
         read -p "Ingresa el nombre de usuario: " username_input
         
         if [[ -n "$username_input" ]]; then
             USERNAME="$username_input"
+            echo ""
+            print_success "Usuario a crear: $USERNAME"
             break
         else
             print_error "El nombre de usuario no puede estar vacío"
         fi
     done
     
-    print_info "Creando usuario: $USERNAME"
-    useradd -G wheel,audio,video,optical,storage,power,scanner,lp,rfkill,input "$USERNAME"
+    echo ""
+    print_info "Creando usuario con grupos del sistema..."
+    useradd -m -G wheel,audio,video,optical,storage,power,scanner,lp,rfkill,input "$USERNAME"
+    print_success "Usuario creado con directorio home"
+    
+    print_info "Grupos asignados:"
+    echo "  • wheel (sudo), audio, video, storage, power, input"
+    echo ""
     
     print_warning "Configura una contraseña para $USERNAME"
+    echo ""
     while ! passwd "$USERNAME"; do
-        print_error "Error al configurar la contraseña. Intenta de nuevo."
+        echo ""
+        print_error "Error al configurar la contraseña. Intenta nuevamente."
+        echo ""
     done
     
-    print_success "Usuario $USERNAME creado correctamente"
+    echo ""
+    print_success "✓ Usuario $USERNAME creado y configurado"
 }
 
 # Instalar y configurar sudo
 configure_sudo() {
     print_header "CONFIGURACIÓN DE SUDO"
     
+    print_info "Sudo permite a usuarios ejecutar comandos como root"
+    echo ""
+    
     # Instalar sudo si no está instalado
     if ! command -v sudo &> /dev/null; then
-        print_info "Instalando sudo..."
+        print_info "Instalando paquete sudo..."
         pacman -S --noconfirm sudo
+        print_success "Sudo instalado"
+    else
+        print_info "Sudo ya está instalado"
     fi
     
-    print_info "Configurando sudoers para el grupo wheel..."
+    echo ""
+    print_info "Habilitando permisos sudo para el grupo wheel..."
     
     # Descomentar línea de wheel en sudoers
     sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
     
-    print_success "Sudo configurado correctamente"
-    print_info "Los usuarios del grupo wheel pueden usar sudo"
+    print_success "Configuración de sudoers actualizada"
+    echo ""
+    print_info "Los usuarios del grupo 'wheel' ahora pueden usar sudo"
+    print_info "Uso: sudo <comando>"
+    echo ""
+    print_success "✓ Sudo configurado correctamente"
 }
+
+# ================================
+# Funciones de Bootloader
+# ================================
 
 # Detectar modo de arranque (UEFI o BIOS)
 detect_boot_mode() {
     print_header "DETECCIÓN DE MODO DE ARRANQUE"
     
+    print_info "Detectando modo de firmware del sistema..."
+    echo ""
+    
     if [[ -d /sys/firmware/efi/efivars ]]; then
         BOOT_MODE="UEFI"
-        print_success "Sistema detectado: UEFI"
+        print_success "✓ Modo detectado: UEFI (moderno)"
+        print_info "Se instalará GRUB para UEFI x86_64"
     else
         BOOT_MODE="BIOS"
-        print_success "Sistema detectado: BIOS Legacy"
+        print_success "✓ Modo detectado: BIOS Legacy (tradicional)"
+        print_info "Se instalará GRUB para BIOS i386-pc"
     fi
 }
 
 # Instalar y configurar GRUB
 install_grub() {
-    print_header "INSTALACIÓN DE BOOTLOADER (GRUB)"
+    print_header "INSTALACIÓN DEL BOOTLOADER (GRUB)"
+    
+    print_info "GRUB es el gestor de arranque que inicia el sistema operativo"
+    echo ""
     
     # Instalar paquetes necesarios
     if [[ "$BOOT_MODE" == "UEFI" ]]; then
-        print_info "Instalando GRUB para UEFI..."
+        print_info "[1/3] Instalando paquetes para UEFI..."
+        print_info "Paquetes: grub, efibootmgr"
         pacman -S --noconfirm grub efibootmgr
+        print_success "Paquetes instalados"
+        echo ""
         
-        print_info "Instalando GRUB en /boot..."
+        print_info "[2/3] Instalando GRUB en la partición EFI (/boot)..."
         grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
+        print_success "GRUB instalado en modo UEFI"
     else
-        print_info "Instalando GRUB para BIOS..."
+        print_info "[1/3] Instalando paquetes para BIOS..."
+        print_info "Paquete: grub"
         pacman -S --noconfirm grub
+        print_success "Paquetes instalados"
+        echo ""
         
         # Detectar el disco principal
         ROOT_DISK=$(lsblk -no PKNAME $(findmnt -n -o SOURCE /))
-        print_info "Instalando GRUB en /dev/$ROOT_DISK..."
+        print_info "[2/3] Instalando GRUB en el MBR del disco..."
+        print_info "Disco detectado: /dev/$ROOT_DISK"
         grub-install --target=i386-pc --recheck /dev/$ROOT_DISK
+        print_success "GRUB instalado en modo BIOS"
     fi
     
     # Generar configuración de GRUB
-    print_info "Generando configuración de GRUB..."
+    echo ""
+    print_info "[3/3] Generando archivo de configuración de GRUB..."
     grub-mkconfig -o /boot/grub/grub.cfg
+    print_success "Configuración generada"
     
-    print_success "GRUB instalado y configurado correctamente"
+    echo ""
+    print_success "✓ GRUB instalado y configurado exitosamente"
 }
+
+# ================================
+# Funciones de Red
+# ================================
 
 # Instalar y configurar NetworkManager
 install_networkmanager() {
-    print_header "INSTALACIÓN DE NETWORKMANAGER"
+    print_header "INSTALACIÓN DE GESTOR DE RED"
     
-    print_info "Instalando NetworkManager..."
+    print_info "NetworkManager facilita la conexión a redes WiFi y Ethernet"
+    echo ""
+    
+    print_info "[1/2] Instalando NetworkManager..."
     pacman -S --noconfirm networkmanager
+    print_success "NetworkManager instalado"
     
-    print_info "Habilitando NetworkManager..."
+    echo ""
+    print_info "[2/2] Habilitando servicio para inicio automático..."
     systemctl enable NetworkManager
+    print_success "Servicio habilitado"
     
-    print_success "NetworkManager instalado y habilitado"
+    echo ""
+    print_info "NetworkManager se iniciará automáticamente al arrancar"
+    print_success "✓ Gestor de red configurado correctamente"
 }
+
+# ================================
+# Funciones de Finalización
+# ================================
 
 # Mostrar instrucciones finales
 show_final_instructions() {
-    print_header "CONFIGURACIÓN COMPLETADA"
+    print_header "¡CONFIGURACIÓN COMPLETADA!"
     
-    print_success "¡Arch Linux ha sido configurado correctamente!"
     echo ""
-    echo -e "${BLUE}RESUMEN DE LA CONFIGURACIÓN:${NC}"
-    echo "  • Hostname: $HOSTNAME"
-    echo "  • Zona horaria: $TIMEZONE"
-    echo "  • Locale: $SELECTED_LOCALE.UTF-8"
-    echo "  • Usuario: $USERNAME"
-    echo "  • Bootloader: GRUB ($BOOT_MODE)"
+    print_success "Arch Linux ha sido configurado exitosamente"
     echo ""
-    echo -e "${YELLOW}PASOS FINALES:${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}📋 RESUMEN DE LA CONFIGURACIÓN:${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo "1. Sal del chroot:"
-    echo -e "   ${GREEN}exit${NC}"
+    echo "  🖥️  Hostname:      $HOSTNAME"
+    echo "  🌍 Zona horaria:  $TIMEZONE"
+    echo "  🌐 Idioma:        $SELECTED_LOCALE.UTF-8"
+    echo "  👤 Usuario:       $USERNAME"
+    echo "  🚀 Bootloader:    GRUB ($BOOT_MODE)"
+    echo "  📡 Red:           NetworkManager"
     echo ""
-    echo "2. Desmonta las particiones:"
-    echo -e "   ${GREEN}umount -R /mnt${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}🎯 PASOS FINALES PARA COMPLETAR LA INSTALACIÓN:${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo "3. Reinicia el sistema:"
-    echo -e "   ${GREEN}reboot${NC}"
+    echo -e "${GREEN}1.${NC} Sal del entorno chroot:"
+    echo -e "   ${BLUE}→${NC} exit"
     echo ""
-    echo -e "${BLUE}CONECTARSE A INTERNET:${NC}"
+    echo -e "${GREEN}2.${NC} Desmonta todas las particiones:"
+    echo -e "   ${BLUE}→${NC} umount -R /mnt"
     echo ""
-    echo "Después de reiniciar, para conectarte a internet:"
+    echo -e "${GREEN}3.${NC} Reinicia el sistema:"
+    echo -e "   ${BLUE}→${NC} reboot"
     echo ""
-    echo "• WiFi:"
-    echo -e "  ${GREEN}nmcli device wifi list${NC}                    # Listar redes"
-    echo -e "  ${GREEN}nmcli device wifi connect SSID password PASS${NC}  # Conectar"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}📡 CONECTARSE A INTERNET (después de reiniciar):${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo "• Ethernet (se conecta automáticamente)"
+    echo -e "${GREEN}WiFi:${NC}"
+    echo -e "  ${BLUE}→${NC} nmcli device wifi list"
+    echo "     (lista las redes WiFi disponibles)"
     echo ""
-    echo "• Verificar conexión:"
-    echo -e "  ${GREEN}ping -c 3 archlinux.org${NC}"
+    echo -e "  ${BLUE}→${NC} nmcli device wifi connect NOMBRE_RED password TU_CONTRASEÑA"
+    echo "     (conecta a una red WiFi)"
+    echo ""
+    echo -e "${GREEN}Ethernet:${NC}"
+    echo "  • Se conecta automáticamente al enchufar el cable"
+    echo ""
+    echo -e "${GREEN}Verificar conexión:${NC}"
+    echo -e "  ${BLUE}→${NC} ping -c 3 archlinux.org"
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }
 
-# Función principal
+# ================================
+# Función Principal
+# ================================
+
 main() {
+    clear
     print_header "CONFIGURACIÓN DE ARCH LINUX - PARTE 2"
     
     # Verificar que estamos en chroot
@@ -417,10 +588,22 @@ main() {
         exit 1
     fi
     
-    print_info "Iniciando configuración del sistema..."
     echo ""
-    read -p "Presiona Enter para continuar..."
+    echo "Bienvenido al asistente de configuración de Arch Linux"
+    echo ""
+    print_info "Este script configurará:"
+    echo "  • Zona horaria e idioma del sistema"
+    echo "  • Teclado de consola"
+    echo "  • Nombre del equipo y usuarios"
+    echo "  • Bootloader (GRUB)"
+    echo "  • Gestor de red (NetworkManager)"
+    echo ""
+    print_warning "El proceso tomará varios minutos"
+    print_info "Presiona Ctrl+C en cualquier momento para cancelar"
+    echo ""
+    read -p "Presiona Enter para comenzar..."
     
+    # Ejecutar configuraciones paso a paso
     configure_timezone
     configure_locale
     configure_vconsole
@@ -433,12 +616,14 @@ main() {
     install_networkmanager
     show_final_instructions
     
+    echo ""
     print_success "¡Configuración completada exitosamente!"
-    
-    # Autolimpieza
-    print_info "Limpiando script de configuración..."
-    rm -f /root/config-arch.sh
+    print_info "Sigue los pasos indicados arriba para finalizar"
+    echo ""
 }
 
-# Ejecutar script
+# ================================
+# Ejecución del Script
+# ================================
+
 main

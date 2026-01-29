@@ -1,0 +1,32 @@
+# ================================
+# Colores
+# ================================
+
+$black = [[palette.black]]
+$red = [[palette.red]]
+$green = [[palette.green]]
+$yellow = [[palette.yellow]]
+$blue = [[palette.blue]]
+$magenta = [[palette.magenta]]
+$cyan = [[palette.cyan]]
+$white = [[palette.white]]
+
+$accent = [[semantic.accent]]
+$success = [[semantic.success]]
+$warning = [[semantic.warning]]
+$error = [[semantic.error]]
+$info = [[semantic.info]]
+
+$background = [[applications.background]]
+$background_layer0 = [[applications.background:layer0]]
+$background_layer1 = [[applications.background:layer1]]
+$background_layer2 = [[applications.background:layer2]]
+
+$foreground = [[applications.foreground]]
+$foreground_layer0 = [[applications.foreground:layer0]]
+$foreground_layer1 = [[applications.foreground:layer1]]
+$foreground_layer2 = [[applications.foreground:layer2]]
+
+$border_active = [[applications.border:active]]
+$border_inactive = [[applications.border:inactive]]
+$border_urgent = [[applications.border:urgent]]

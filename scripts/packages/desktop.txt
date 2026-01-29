@@ -12,9 +12,9 @@ kitty
 waybar
 
 # === Notifications ===
-dunst
-libnotify
-# mako
+# dunst
+# libnotify
+mako
 
 # === Application Launcher ===
 rofi
@@ -23,7 +23,7 @@ rofi
 # hyprpaper
 
 # === Clipboard ===
-wl-clipboard
+# wl-clipboard
 cliphist
 
 # === Screenshot Tools ===

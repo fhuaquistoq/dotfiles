@@ -7,10 +7,11 @@
 
 # === Browsers ===
 brave-bin
+visual-studio-code-bin
 
 # === Tools ===
 # waypaper
-mpvpaper
+# mpvpaper
 
 # === Legacy Libraries ===
 # icu74
