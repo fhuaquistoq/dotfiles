@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ================================================
-# INSTALADOR DE DOTFILES - FHUAQUISTO
+# INSTALADOR DE DOTFILES
 # ================================================
 
 set -e
@@ -574,7 +574,7 @@ EOF
     
     print_success "Configuración actualizada"
     
-    print_info "[3/3] Configurando teclado virtual..."
+    print_info "[3/4] Configurando teclado virtual..."
     sudo mkdir -p /etc/sddm.conf.d
     sudo tee /etc/sddm.conf.d/virtualkbd.conf > /dev/null << 'EOF'
 # Virtual Keyboard Configuration
@@ -586,9 +586,13 @@ EOF
     
     print_success "Teclado virtual configurado"
     
+    print_info "[4/4] Habilitando servicio SDDM..."
+    sudo systemctl enable sddm.service
+    print_success "Servicio SDDM habilitado"
+    
     echo ""
     print_success "✓ Tema SDDM instalado correctamente"
-    print_info "Reinicia SDDM para ver los cambios: sudo systemctl restart sddm"
+    print_info "SDDM se iniciará automáticamente en el próximo arranque"
 }
 
 # Instalar archivos del home
