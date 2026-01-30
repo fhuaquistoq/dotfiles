@@ -223,6 +223,25 @@ update_system() {
     print_success "✓ Sistema actualizado correctamente"
 }
 
+# Configurar sincronización de hora
+configure_time_sync() {
+    print_header "CONFIGURACIÓN DE SINCRONIZACIÓN DE HORA"
+    
+    print_info "Activando sincronización automática de hora con NTP..."
+    
+    if sudo timedatectl set-ntp true; then
+        echo ""
+        print_success "✓ Sincronización de hora configurada correctamente"
+        
+        # Mostrar estado actual
+        print_info "Estado actual del reloj del sistema:"
+        timedatectl status | grep -E "(Local time|Time zone|NTP|synchronized)"
+    else
+        print_error "Error al configurar sincronización de hora"
+        return 1
+    fi
+}
+
 # ================================
 # Funciones de Instalación de Kernel
 # ================================
@@ -483,7 +502,7 @@ install_fonts() {
     print_info "Instalando fuentes en /usr/share/fonts..."
     
     # Crear directorio si no existe
-    sudo mkdir -p /usr/share/fonts/TTF
+    sudo mkdir -p /usr/share/fonts
     
     # Copiar cada directorio de fuente
     local font_count=0
@@ -491,8 +510,8 @@ install_fonts() {
         if [[ -d "$font_dir" ]]; then
             local font_name=$(basename "$font_dir")
             print_info "Instalando fuente: $font_name"
-            sudo cp -r "$font_dir" /usr/share/fonts/TTF/
-            ((font_count++))
+            sudo cp -r "$font_dir" /usr/share/fonts
+            font_count=$((font_count + 1))
         fi
     done
     
@@ -594,7 +613,7 @@ install_home_files() {
             fi
             
             cp -r "$item" "$USER_HOME/"
-            ((copied_count++))
+            copied_count=$((copied_count + 1))
         fi
     done
     
@@ -627,7 +646,7 @@ install_config_files() {
             fi
             
             cp -r "$config_item" "$USER_HOME/.config/"
-            ((copied_count++))
+            copied_count=$((copied_count + 1))
         fi
     done
     
@@ -798,6 +817,7 @@ main() {
     install_cachyos_repo
     enable_multilib
     update_system
+    configure_time_sync
     install_cachyos_kernel
     regenerate_grub
     install_drivers
