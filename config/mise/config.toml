@@ -1,0 +1,5 @@
+[tools]
+"github:Gentleman-Programming/engram" = "latest"
+"github:Gentleman-Programming/gentle-ai" = "latest"
+qwen = "latest"
+usage = "latest"

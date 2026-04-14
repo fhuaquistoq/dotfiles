@@ -1,0 +1,15 @@
+{
+    "sway/window": {
+        "format": "{app_id}",
+        "tooltip": false,
+        "rewrite": {
+            "kitty": "Kitty",
+            "brave-browser": "Brave",
+            "code": "Visual Studio Code",
+            "org.pulseaudio.pavucontrol": "PulseAudio Volume Control",
+            "jetbrains-toolbox": "JetBrains Toolbox",
+            "teams-for-linux": "Microsoft Teams",
+            "": "Escritorio"
+        }
+    }
+}

@@ -1,0 +1,454 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=home/.local/bin/lib/theme-engine.sh
+source "$SCRIPT_DIR/lib/theme-engine.sh"
+# shellcheck source=home/.local/bin/lib/reload-hooks.sh
+source "$SCRIPT_DIR/lib/reload-hooks.sh"
+
+CONFIG_DIR_DEFAULT="$HOME/.local/shared/theme-selector"
+THEMES_DIR_DEFAULT=""
+COMPOSITOR="auto"
+
+CONFIG_DIR="$CONFIG_DIR_DEFAULT"
+THEMES_DIR="$THEMES_DIR_DEFAULT"
+CONFIG_FILE=""
+
+COMMAND=""
+SUB_ARGS=()
+APPLY_SUCCESS_APPS_CSV=""
+
+print_usage() {
+    cat <<'EOF'
+Usage: theme-selector [global flags] <command> [command flags]
+
+Global flags:
+  --config-dir DIR            Config directory (default ~/.local/shared/theme-selector)
+  --themes-dir DIR            Theme source dir (default <config-dir>/themes)
+  --compositor hypr|sway|auto Compositor mode for reload (default auto)
+  -h, --help                  Show help
+
+Commands:
+  list [--json]
+  validate [--theme NAME] [--strict] [--apps a,b] [--sources s1,s2]
+  render <theme> [--apps a,b] [--sources s1,s2] [--force]
+  apply <theme> [--apps a,b] [--sources s1,s2] [--reload] [--dry-run]
+  reload [--apps a,b] [--dry-run]
+  preview <theme> [--apps a,b] [--sources s1,s2]
+  status [--theme NAME]
+EOF
+}
+
+ensure_paths() {
+    CONFIG_DIR="$(te_expand_path "$CONFIG_DIR")"
+    if [[ -z "$THEMES_DIR" ]]; then
+        THEMES_DIR="$CONFIG_DIR/themes"
+    fi
+    THEMES_DIR="$(te_expand_path "$THEMES_DIR")"
+    CONFIG_FILE="$CONFIG_DIR/config.json"
+}
+
+fail() {
+    printf '[theme-selector][error] %s\n' "$*" >&2
+    exit 1
+}
+
+parse_global_flags() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --config-dir)
+                [[ $# -gt 1 ]] || fail "--config-dir requires value"
+                CONFIG_DIR="$2"
+                shift 2
+                ;;
+            --themes-dir)
+                [[ $# -gt 1 ]] || fail "--themes-dir requires value"
+                THEMES_DIR="$2"
+                shift 2
+                ;;
+            --compositor)
+                [[ $# -gt 1 ]] || fail "--compositor requires value"
+                COMPOSITOR="$2"
+                shift 2
+                ;;
+            -h|--help)
+                print_usage
+                exit 0
+                ;;
+            list|validate|render|apply|reload|preview|status)
+                COMMAND="$1"
+                shift
+                SUB_ARGS=("$@")
+                return 0
+                ;;
+            *)
+                fail "unknown command or global flag: $1"
+                ;;
+        esac
+    done
+}
+
+manifest_for_theme() {
+    local theme="$1"
+    local apps_csv="$2"
+    local sources_csv="$3"
+
+    local gen_root="$THEMES_DIR/generated/$theme"
+    local manifest="$gen_root/.manifest.tsv"
+    mkdir -p "$gen_root"
+
+    te_build_manifest "$CONFIG_FILE" "$theme" "$THEMES_DIR" "$gen_root" "$apps_csv" "$sources_csv" "$manifest"
+    printf '%s' "$manifest"
+}
+
+cmd_list() {
+    local as_json=0
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --json) as_json=1; shift ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector list [--json]
+EOF
+                return 0
+                ;;
+            *) fail "unknown list flag: $1" ;;
+        esac
+    done
+
+    [[ -d "$THEMES_DIR" ]] || fail "themes dir not found: $THEMES_DIR"
+    if [[ "$as_json" == "1" ]]; then
+        perl -e '
+            use JSON::PP;
+            my $root = shift @ARGV;
+            opendir(my $dh, $root) or die "themes dir not found\n";
+            my @names = sort map { s/\.json$//r } grep { /\.json$/ } readdir($dh);
+            closedir($dh);
+            print encode_json(\@names), "\n";
+        ' "$THEMES_DIR"
+    else
+        local t
+        for t in "$THEMES_DIR"/*.json; do
+            [[ -f "$t" ]] || continue
+            basename "$t" .json
+        done
+    fi
+}
+
+cmd_validate() {
+    local theme=""
+    local strict=0
+    local apps_csv=""
+    local sources_csv=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --theme) [[ $# -gt 1 ]] || fail "--theme requires value"; theme="$2"; shift 2 ;;
+            --strict) strict=1; shift ;;
+            --apps) [[ $# -gt 1 ]] || fail "--apps requires csv"; apps_csv="$2"; shift 2 ;;
+            --sources) [[ $# -gt 1 ]] || fail "--sources requires csv"; sources_csv="$2"; shift 2 ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector validate [--theme NAME] [--strict] [--apps a,b] [--sources s1,s2]
+EOF
+                return 0
+                ;;
+            *) fail "unknown validate flag: $1" ;;
+        esac
+    done
+
+    te_require_jq
+    [[ -f "$CONFIG_FILE" ]] || fail "config file missing: $CONFIG_FILE"
+    te_validate_apps_config "$CONFIG_FILE" "$strict"
+
+    if [[ -n "$theme" ]]; then
+        local theme_file
+        theme_file="$(te_get_theme_file "$THEMES_DIR" "$theme")"
+        [[ -f "$theme_file" ]] || fail "theme not found: $theme"
+        local manifest
+        manifest="$(manifest_for_theme "$theme" "$apps_csv" "$sources_csv")"
+        te_validate_theme_tokens "$theme_file" "$manifest"
+    fi
+
+    printf '[OK] validate passed\n'
+}
+
+cmd_render() {
+    [[ $# -gt 0 ]] || fail "render requires <theme>"
+    local theme="$1"
+    shift
+
+    local apps_csv=""
+    local sources_csv=""
+    local force=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --apps) [[ $# -gt 1 ]] || fail "--apps requires csv"; apps_csv="$2"; shift 2 ;;
+            --sources) [[ $# -gt 1 ]] || fail "--sources requires csv"; sources_csv="$2"; shift 2 ;;
+            --force) force=1; shift ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector render <theme> [--apps a,b] [--sources s1,s2] [--force]
+EOF
+                return 0
+                ;;
+            *) fail "unknown render flag: $1" ;;
+        esac
+    done
+
+    local theme_file manifest
+    theme_file="$(te_get_theme_file "$THEMES_DIR" "$theme")"
+    [[ -f "$theme_file" ]] || fail "theme not found: $theme"
+
+    manifest="$(manifest_for_theme "$theme" "$apps_csv" "$sources_csv")"
+    te_validate_theme_tokens "$theme_file" "$manifest"
+    te_render_from_manifest "$theme_file" "$manifest" "$force"
+    printf '[OK] render completed (%s)\n' "$theme"
+}
+
+apply_from_manifest() {
+    local manifest="$1"
+    local dry_run="$2"
+
+    local total=0
+    local failures=0
+    local success_apps='|'
+
+    APPLY_SUCCESS_APPS_CSV=""
+
+    while IFS=$'\t' read -r source app template_abs target_abs generated_file reload_mode reload_command; do
+        [[ -n "$app" ]] || continue
+        total=$((total + 1))
+
+        if [[ "$dry_run" == "1" ]]; then
+            printf '[plan] link %s -> %s\n' "$target_abs" "$generated_file"
+            if [[ "$success_apps" != *"|$app|"* ]]; then
+                success_apps+="$app|"
+            fi
+            continue
+        fi
+
+        if [[ ! -f "$generated_file" ]]; then
+            printf '[theme-selector][error] missing generated artifact for %s: %s\n' "$app" "$generated_file" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
+        if ! mkdir -p "$(dirname "$target_abs")"; then
+            printf '[theme-selector][error] failed to ensure target dir for %s\n' "$target_abs" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        if ! ln -sfn "$generated_file" "$target_abs"; then
+            printf '[theme-selector][error] failed to link %s\n' "$target_abs" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
+        if [[ "$success_apps" != *"|$app|"* ]]; then
+            success_apps+="$app|"
+        fi
+        printf '[applied] %s -> %s\n' "$target_abs" "$generated_file"
+    done < "$manifest"
+
+    APPLY_SUCCESS_APPS_CSV="${success_apps#|}"
+    APPLY_SUCCESS_APPS_CSV="${APPLY_SUCCESS_APPS_CSV%|}"
+
+    [[ "$failures" -eq 0 ]] || return 2
+    [[ "$total" -gt 0 ]] || return 1
+    return 0
+}
+
+reload_from_manifest() {
+    local manifest="$1"
+    local dry_run="$2"
+    local apps_csv="$3"
+
+    local compositor="$COMPOSITOR"
+    [[ "$compositor" == "auto" ]] && compositor="$(rh_detect_compositor)"
+
+    local -a filters
+    te_split_csv "$apps_csv" filters
+
+    local seen='|'
+    local failures=0
+    while IFS=$'\t' read -r source app template_abs target_abs generated_file reload_mode reload_command; do
+        [[ -n "$app" ]] || continue
+        if [[ ${#filters[@]} -gt 0 ]] && ! te_has_item "$app" "${filters[@]}"; then
+            continue
+        fi
+        [[ "$seen" == *"|$app|"* ]] && continue
+        seen+="$app|"
+
+        if ! rh_apply_reload_policy "$app" "$reload_mode" "$reload_command" "$compositor" "$dry_run"; then
+            failures=$((failures + 1))
+        fi
+    done < "$manifest"
+
+    [[ "$failures" -eq 0 ]]
+}
+
+cmd_apply() {
+    [[ $# -gt 0 ]] || fail "apply requires <theme>"
+    local theme="$1"
+    shift
+
+    local apps_csv=""
+    local sources_csv=""
+    local do_reload=0
+    local dry_run=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --apps) [[ $# -gt 1 ]] || fail "--apps requires csv"; apps_csv="$2"; shift 2 ;;
+            --sources) [[ $# -gt 1 ]] || fail "--sources requires csv"; sources_csv="$2"; shift 2 ;;
+            --reload) do_reload=1; shift ;;
+            --dry-run) dry_run=1; shift ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector apply <theme> [--apps a,b] [--sources s1,s2] [--reload] [--dry-run]
+EOF
+                return 0
+                ;;
+            *) fail "unknown apply flag: $1" ;;
+        esac
+    done
+
+    local manifest
+    manifest="$(manifest_for_theme "$theme" "$apps_csv" "$sources_csv")"
+
+    if ! grep -q . "$manifest"; then
+        fail "empty apply plan (check --apps/--sources filters)"
+    fi
+
+    local rc=0
+    apply_from_manifest "$manifest" "$dry_run" || rc=$?
+    if [[ "$rc" -ne 0 ]]; then
+        if [[ "$do_reload" == "1" ]]; then
+            if [[ -n "$APPLY_SUCCESS_APPS_CSV" ]]; then
+                reload_from_manifest "$manifest" "$dry_run" "$APPLY_SUCCESS_APPS_CSV" || true
+            else
+                printf '[theme-selector][warn] skipping reload: no successful targets\n' >&2
+            fi
+        fi
+        return "$rc"
+    fi
+
+    if [[ "$do_reload" == "1" ]]; then
+        reload_from_manifest "$manifest" "$dry_run" "$APPLY_SUCCESS_APPS_CSV"
+    fi
+}
+
+cmd_reload() {
+    local apps_csv=""
+    local dry_run=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --apps) [[ $# -gt 1 ]] || fail "--apps requires csv"; apps_csv="$2"; shift 2 ;;
+            --dry-run) dry_run=1; shift ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector reload [--apps a,b] [--dry-run]
+EOF
+                return 0
+                ;;
+            *) fail "unknown reload flag: $1" ;;
+        esac
+    done
+
+    local latest_theme
+    latest_theme="$(ls -1 "$THEMES_DIR"/*.json 2>/dev/null | xargs -r -n1 basename | sed 's/\.json$//' | head -n 1)"
+    [[ -n "$latest_theme" ]] || fail "no themes available"
+
+    local manifest
+    manifest="$(manifest_for_theme "$latest_theme" "$apps_csv" "")"
+    reload_from_manifest "$manifest" "$dry_run" "$apps_csv"
+}
+
+cmd_preview() {
+    [[ $# -gt 0 ]] || fail "preview requires <theme>"
+    local theme="$1"
+    shift
+    local apps_csv=""
+    local sources_csv=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --apps) [[ $# -gt 1 ]] || fail "--apps requires csv"; apps_csv="$2"; shift 2 ;;
+            --sources) [[ $# -gt 1 ]] || fail "--sources requires csv"; sources_csv="$2"; shift 2 ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector preview <theme> [--apps a,b] [--sources s1,s2]
+EOF
+                return 0
+                ;;
+            *) fail "unknown preview flag: $1" ;;
+        esac
+    done
+
+    local manifest
+    manifest="$(manifest_for_theme "$theme" "$apps_csv" "$sources_csv")"
+    while IFS=$'\t' read -r source app template_abs target_abs generated_file reload_mode reload_command; do
+        [[ -n "$app" ]] || continue
+        printf '[plan] app=%s source=%s template=%s generated=%s target=%s reload=%s\n' \
+            "$app" "$source" "$template_abs" "$generated_file" "$target_abs" "$reload_mode"
+    done < "$manifest"
+}
+
+cmd_status() {
+    local theme=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --theme) [[ $# -gt 1 ]] || fail "--theme requires value"; theme="$2"; shift 2 ;;
+            -h|--help)
+                cat <<'EOF'
+Usage: theme-selector status [--theme NAME]
+EOF
+                return 0
+                ;;
+            *) fail "unknown status flag: $1" ;;
+        esac
+    done
+
+    if [[ -z "$theme" ]]; then
+        cmd_list
+        return 0
+    fi
+
+    local manifest
+    manifest="$(manifest_for_theme "$theme" "" "")"
+    while IFS=$'\t' read -r source app template_abs target_abs generated_file reload_mode reload_command; do
+        [[ -n "$app" ]] || continue
+        local state='missing'
+        [[ -L "$target_abs" || -f "$target_abs" ]] && state='present'
+        printf '%s\t%s\t%s\n' "$app" "$target_abs" "$state"
+    done < "$manifest"
+}
+
+main() {
+    parse_global_flags "$@"
+    [[ -n "$COMMAND" ]] || {
+        print_usage
+        exit 1
+    }
+
+    ensure_paths
+    te_require_jq
+
+    case "$COMMAND" in
+        list) cmd_list "${SUB_ARGS[@]}" ;;
+        validate) cmd_validate "${SUB_ARGS[@]}" ;;
+        render) cmd_render "${SUB_ARGS[@]}" ;;
+        apply) cmd_apply "${SUB_ARGS[@]}" ;;
+        reload) cmd_reload "${SUB_ARGS[@]}" ;;
+        preview) cmd_preview "${SUB_ARGS[@]}" ;;
+        status) cmd_status "${SUB_ARGS[@]}" ;;
+        *) fail "unsupported command: $COMMAND" ;;
+    esac
+}
+
+main "$@"

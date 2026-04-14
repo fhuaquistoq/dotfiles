@@ -1,0 +1,32 @@
+# ================================
+# Colores
+# ================================
+
+set $black      [[palette.black]]
+set $red        [[palette.red]]
+set $green      [[palette.green]]
+set $yellow     [[palette.yellow]]
+set $blue       [[palette.blue]]
+set $magenta    [[palette.magenta]]
+set $cyan       [[palette.cyan]]
+set $white      [[palette.white]]
+
+set $accent     [[semantic.accent]]
+set $success    [[semantic.success]]
+set $warning    [[semantic.warning]]
+set $error      [[semantic.error]]
+set $info       [[semantic.info]]
+
+set $background         [[applications.background]]
+set $background_layer0  [[applications.background:layer0]]
+set $background_layer1  [[applications.background:layer1]]
+set $background_layer2  [[applications.background:layer2]]
+
+set $foreground         [[applications.foreground]]
+set $foreground_layer0  [[applications.foreground:layer0]]
+set $foreground_layer1  [[applications.foreground:layer1]]
+set $foreground_layer2  [[applications.foreground:layer2]]
+
+set $border_active    [[applications.border:active]]
+set $border_inactive  [[applications.border:inactive]]
+set $border_urgent    [[applications.border:urgent]]

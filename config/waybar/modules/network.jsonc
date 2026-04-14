@@ -1,0 +1,10 @@
+{
+    "network": {
+        "interface": "enp3s0",
+        "format": "{ifname}",
+        "format-wifi": "󰤨 {essid}",
+        "format-ethernet": "󰈀 {bandwidthDownBytes}",
+        "format-disconnected": "",
+        "tooltip": false
+    }
+}
